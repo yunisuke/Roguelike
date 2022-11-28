@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 9129395716914141982}
   - component: {fileID: 9129395716914141978}
   - component: {fileID: 9129395716914141979}
+  - component: {fileID: 385240870}
   m_Layer: 8
   m_Name: Player
   m_TagString: Player
@@ -154,3 +155,24 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.9, y: 0.9}
   m_EdgeRadius: 0
+--- !u!114 &385240870
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9129395716914141983}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26d2b0c4eec8d45c9a3f7005801bfe7d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveTime: 0.1
+  blockingLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  restartLevelDelay: 1
+  pointsPerFood: 10
+  pointsPerSoda: 10
+  wallDamage: 1
+  foodText: {fileID: 0}

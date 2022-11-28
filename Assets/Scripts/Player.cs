@@ -2,11 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class Player : MovingObject
 {
     public float restartLevelDelay = 1f; // レベルを再始動するまでの秒単位の遅延時間
-    public int pointsPerFood = 10; // フードオブジェクトを拾った時の獲得ポイント
+    public int pointsPerFood = 10; // フードの回復量
+    public int pointsPerSoda = 10; // ソーダの回復量
     public int wallDamage = 1; // プレイヤーが壁を割ったときに与えるダメージ
     public Text foodText;
 
@@ -19,14 +21,87 @@ public class Player : MovingObject
         animator = GetComponent<Animator>();
 
         // レベル間のgameManger.instanceに保存されている現在のフードポイントの合計を取得
-        //food = GameManager.instance.playerFoodPoints;
+        food = GameManager.instance.playerFoodPoints;
+        foodText.text = "Food: " + food;
 
         base.Start();
     }
 
-    // 障害物にぶつかった際に呼び出す
-    protected override void OnCanMove<GameObject>(GameObject component)
+    private void OnDisable()
     {
-        
+        GameManager.instance.playerFoodPoints =food;
+    }
+
+    void Update()
+    {
+        // プレイヤーのターンじゃない場合は何もしない
+        if (!GameManager.instance.playersTurn) return;
+
+        int horizontal =0;
+        int vertical =0;
+
+        horizontal = (int)Input.GetAxisRaw("Horizontal");
+        vertical = (int)Input.GetAxisRaw("Vertical");
+        if (horizontal != 0) {
+            vertical = 0;
+        }
+        if (horizontal != 0 || vertical != 0) 
+        {
+            AttemptMove<Wall>(horizontal, vertical);
+        }
+    }
+
+    protected override void AttemptMove<T>(int xDir, int yDir)
+    {
+        food--;
+        foodText.text = "Food: " + food;
+        base.AttemptMove<T>(xDir, yDir);
+
+        CheckIfGameOver();
+        GameManager.instance.playersTurn = false;
+    }
+
+    // 障害物にぶつかった際に呼び出す
+    protected override void OnCantMove<T>(T component)
+    {
+        Wall hitWall = component as Wall;
+        hitWall.DamageWall(wallDamage);
+        animator.SetTrigger("Attack");
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.tag == "Exit") {
+            Invoke("Restart", restartLevelDelay);
+            enabled = false;
+        } else if (other.tag == "Food") {
+            food += pointsPerFood;
+            foodText.text = "+" + pointsPerFood + " Food: " + food;
+            other.gameObject.SetActive(false);
+        } else if (other.tag == "Soda") {
+            food += pointsPerSoda;
+            foodText.text = "+" + pointsPerSoda + " Food: " + food;
+            other.gameObject.SetActive(false);
+        }
+    }
+
+    private void Restart()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void LoseFood(int loss)
+    {
+        animator.SetTrigger("Damage");
+        food -= loss;
+        foodText.text = "-" + loss + " Food: " + food;
+        CheckIfGameOver();
+    }
+
+    private void CheckIfGameOver()
+    {
+        if (food <= 0) {
+            GameManager.instance.GameOver();
+        }
     }
 }
