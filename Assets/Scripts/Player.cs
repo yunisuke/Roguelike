@@ -35,7 +35,7 @@ public class Player : MovingObject
     void Update()
     {
         // プレイヤーのターンじゃない場合は何もしない
-        if (!GameManager.instance.playersTurn) return;
+        if (!GameManager.instance.playersTurn || isMoving) return;
 
         int horizontal =0;
         int vertical =0;
