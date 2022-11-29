@@ -86,7 +86,7 @@ public abstract class MovingObject : MonoBehaviour
     }
 
     // AttemptMoveはジェネリックパラメータTを取り、ブロックされた場合にユニットが操作するコンポーネントのタイプを指定
-    protected virtual void AttemptMove<T>(int xDir, int yDir) 
+    protected virtual bool AttemptMove<T>(int xDir, int yDir) 
         where T : Component
     {
         RaycastHit2D hit;
@@ -98,7 +98,7 @@ public abstract class MovingObject : MonoBehaviour
         if (hit.transform == null)
         {
             // 何もヒットしなかった場合は終わり
-            return;
+            return canMove;
         }
 
         // 障害となったコンポーネントを取得
@@ -107,6 +107,8 @@ public abstract class MovingObject : MonoBehaviour
         {
             OnCantMove(hitComponent);
         }
+
+        return canMove;
     }
 
     // 障害物にぶつかった際に呼び出す

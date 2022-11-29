@@ -18,15 +18,17 @@ public class Enemy : MovingObject
         base.Start();
     }
 
-    protected override void AttemptMove<T>(int xDir, int yDir)
+    protected override bool AttemptMove<T>(int xDir, int yDir)
     {
         if (skipMove) {
             skipMove = false;
-            return;
+            return true;
         }
 
         base.AttemptMove<T>(xDir, yDir);
         skipMove = true;
+
+        return true;
     }
 
     public void MoveEnemy()

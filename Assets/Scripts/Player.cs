@@ -15,6 +15,15 @@ public class Player : MovingObject
     private Animator animator;
     private int food;
 
+    // 各効果音を指定
+    public AudioClip moveSound1;
+    public AudioClip moveSound2;
+    public AudioClip eatSound1;
+    public AudioClip eatSound2;
+    public AudioClip drinkSound1;
+    public AudioClip drinkSound2;
+    public AudioClip gameOverSound;
+
     protected override void Start()
     {
         // プレイヤーのアニメーターコンポーネントへの参照を取得する
@@ -51,14 +60,22 @@ public class Player : MovingObject
         }
     }
 
-    protected override void AttemptMove<T>(int xDir, int yDir)
+    protected override bool AttemptMove<T>(int xDir, int yDir)
     {
         food--;
         foodText.text = "Food: " + food;
-        base.AttemptMove<T>(xDir, yDir);
+        
+        bool canMove;
+        canMove = base.AttemptMove<T>(xDir, yDir);
+
+        if (canMove) {
+            SoundManager.instance.RandomizeSfx(moveSound1, moveSound2);
+        }
 
         CheckIfGameOver();
         GameManager.instance.playersTurn = false;
+
+        return canMove;
     }
 
     // 障害物にぶつかった際に呼び出す
@@ -77,10 +94,12 @@ public class Player : MovingObject
         } else if (other.tag == "Food") {
             food += pointsPerFood;
             foodText.text = "+" + pointsPerFood + " Food: " + food;
+            SoundManager.instance.RandomizeSfx(eatSound1, eatSound2);
             other.gameObject.SetActive(false);
         } else if (other.tag == "Soda") {
             food += pointsPerSoda;
             foodText.text = "+" + pointsPerSoda + " Food: " + food;
+            SoundManager.instance.RandomizeSfx(drinkSound1, drinkSound2);
             other.gameObject.SetActive(false);
         }
     }
@@ -101,6 +120,8 @@ public class Player : MovingObject
     private void CheckIfGameOver()
     {
         if (food <= 0) {
+            SoundManager.instance.musicSource.Stop();
+            SoundManager.instance.PlaySingle(gameOverSound);
             GameManager.instance.GameOver();
         }
     }
